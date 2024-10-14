@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinosaur Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4c3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #gameArea {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: #8bc34a;
+            border: 10px solid #689f38;
+        }
+        #dino {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #e91e63;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+        }
+        #startMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div id="dino">D</div>
+        <div id="startMessage">Press Space to Start/Restart</div>
+    </div>
+
+    <script>
+        const dino = document.getElementById('dino');
+        const gameArea = document.getElementById('gameArea');
+        const startMessage = document.getElementById('startMessage');
+        let gameStarted = false;
+        let intervalId = null;
+        let speed = 5;
+        let direction = { x: 0, y: 0 };
+
+        // Generate random initial direction
+        function randomDirection() {
+            const directions = [
+                { x: 1, y: 0 },
+                { x: -1, y: 0 },
+                { x: 0, y: 1 },
+                { x: 0, y: -1 }
+            ];
+            return directions[Math.floor(Math.random() * directions.length)];
+        }
+
+        // Move dinosaur based on direction
+        function moveDino() {
+            const rect = dino.getBoundingClientRect();
+            let nextX = rect.x + direction.x * speed;
+            let nextY = rect.y + direction.y * speed;
+            if (nextX < 0 || nextX + rect.width > gameArea.offsetWidth) {
+                direction.x = -direction.x;
+                nextX = rect.x + direction.x * speed;
+            }
+            if (nextY < 0 || nextY + rect.height > gameArea.offsetHeight) {
+                direction.y = -direction.y;
+                nextY = rect.y + direction.y * speed;
+            }
+            dino.style.left = nextX + 'px';
+            dino.style.top = nextY + 'px';
+        }
+
+        // Handle keydown events for controls
+        document.addEventListener('keydown', (event) => {
+            switch (event.key.toLowerCase()) {
+                case 'w': direction = { x: 0, y: -1 }; break;
+                case 'a': direction = { x: -1, y: 0 }; break;
+                case 's': direction = { x: 0, y: 1 }; break;
+                case 'd': direction = { x: 1, y: 0 }; break;
+                case ' ': restartGame(); break;
+            }
+        });
+
+        // Start or restart the game
+        function restartGame() {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            direction = randomDirection();
+            dino.style.left = '50%';
+            dino.style.top = '50%';
+            startMessage.style.display = 'none';
+            gameStarted = true;
+            intervalId = setInterval(moveDino, 50);
+        }
+
+        // Show start message initially
+        function showStartMessage() {
+            startMessage.style.display = 'block';
+        }
+
+        // Start game when space is pressed initially
+        document.addEventListener('keyup', (event) => {
+            if (!gameStarted && event.key === ' ') {
+                restartGame();
+            }
+        });
+
+        // Initial setup
+        dino.style.left = '50%';
+        dino.style.top = '50%';
+        showStartMessage();
+    </script>
+</body>
+</html>
